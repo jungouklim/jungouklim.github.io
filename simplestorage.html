@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -20,13 +20,13 @@
     <button onclick="getValue()"> Refresh</button> ( Current block: <span id="lastBlock"></span>)</li>
   <li><input id="newValue" type="text"><button onclick="setValue()">Store new value</button>
       <div id="result"></div></li>
-  <li>»õ °ªÀ» ÀúÀåÇÑ ÈÄ ÆÒµù Æ®·£Àè¼ÇÀÌ ºí·Ï¿¡ Æ÷ÇÔµÇ¸é ÀÚµ¿À¸·Î ÆäÀÌÁö°¡ ¾÷µ¥ÀÌÆ®µÉ °ÍÀÔ´Ï´Ù.</li>
+  <li>ìƒˆ ê°’ì„ ì €ì¥í•œ í›„ íŒ¬ë”© íŠ¸ëœì­ì…˜ì´ ë¸”ë¡ì— í¬í•¨ë˜ë©´ ìë™ìœ¼ë¡œ í˜ì´ì§€ê°€ ì—…ë°ì´íŠ¸ë  ê²ƒì…ë‹ˆë‹¤.</li>
 </ul>
 
-ÄÁÆ®·¢Æ® ¼Ò½º
+ì»¨íŠ¸ë™íŠ¸ ì†ŒìŠ¤
 <script src="https://gist.github.com/atomrigs/7c633570496b79623bed5d1286f93f3a.js"></script>
 
-HTML ¼Ò½º<br>
+HTML ì†ŒìŠ¤<br>
 <a href="https://github.com/jungouklim/jungouklim.github.io/simplestorage.html">https://github.com/jungouklim/jungouklim.github.io/simplestorage.html</a>;
 <br><br>
 <p>
@@ -95,7 +95,7 @@ function setValue() {
     getValue();
     web3.eth.getTransaction(txid, function(e,r){
       if (r != null && r.blockNumber > 0) {
-        document.getElementById('pending').innerHTML = '(±â·ÏµÈ ºí·Ï: ' + r.blockNumber + ')';
+        document.getElementById('pending').innerHTML = '(ê¸°ë¡ëœ ë¸”ë¡: ' + r.blockNumber + ')';
         document.getElementById('pending').style.cssText ='color:green;';
         document.getElementById('storedData').style.cssText ='color:green; font-size:300%;';
         filter.stopWatching();
