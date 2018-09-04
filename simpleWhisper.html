@@ -11,24 +11,31 @@
   </style>
 </head>
 <body>
-<h3>Simple Storage dApp Example</h3>
+  
+  <h3>Simple Whisper dApp Example</h3>
 <ul>
-  <li>Contract Address: <span id="contractAddr"></span></li>
   <li>My Account address: <span id="accountAddr"></span></li>
-  <li>Stored Data: <span id="storedData"></span>
-    <button onclick="getValue()"> Refresh</button> ( Current block: <span id="lastBlock"></span>)</li>
-  <li><input id="newValue" type="text"><button onclick="setValue()">Store new value</button>
+  <li><input id="newMessage" type="text"><button onclick="SendMessage()">Send New Message</button>
       <div id="result"></div></li>
-</ul>
+  
+  <li>Received Message: <span id="receivedMessage"></span>
+    
+  </ul>
 
+  
+  
+  
 </body>
 
 <script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>
 <script>
-var contractAddress = '0xfc7b968f2d6ea3072f5b8e358a8a5b8ba8e0689e';
-var abi = [{"constant": false,	"inputs": [{"name": "x","type": "uint256"}],"name": "set","outputs": [],"payable": false,"type": "function","stateMutability": "nonpayable"},{"constant": true,"inputs": [],"name": "get","outputs": [{"name": "","type": "uint256"	}],"payable": false,"type": "function","stateMutability": "view"}];
-var simpleStorageContract;
-var simpleStorage;
+  
+var shh;
+var appName = "My Whisper app!";
+var myName = "jolim";
+var myIdentity;
+
+ 
 window.addEventListener('load', function() {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
@@ -42,18 +49,55 @@ window.addEventListener('load', function() {
   // Now you can start your app & access web3 freely:
   startApp();
 });
+  
 function startApp() {
-  simpleStorageContract = web3.eth.contract(abi);
-  simpleStorage = simpleStorageContract.at(contractAddress);
-  document.getElementById('contractAddr').innerHTML = getLink(contractAddress);
-  web3.eth.getAccounts(function(e,r){
-    document.getElementById('accountAddr').innerHTML = getLink(r[0]);
-  });
-  getValue();
+ 
+  
+shh = web3.shh;
+myIdentity = shh.newIdentity();
+  
+  messageReceive();
 }
-function getLink(addr) {
-  return '<a target="_blank" href=https://testnet.etherscan.io/address/' + addr + '>' + addr +'</a>';
-}
+  
+ 
+function messageReceive() {
+  
+var replyWatch = shh.watch({
+  "topics": [ web3.fromAscii(appName), myIdentity ],
+  "to": myIdentity
+});
+// could be "topic": [ web3.fromAscii(appName), null ] if we wanted to filter all such
+// messages for this app, but we'd be unable to read the contents.
+
+replyWatch.arrived(function(m)
+{
+	// new message m
+	console.log("Reply from " + web3.toAscii(m.payload) + " whose address is " + m.from);
+});
+
+var broadcastWatch = shh.watch({ "topic": [ web3.fromAscii(appName) ] });
+broadcastWatch.arrived(function(m)
+{
+  if (m.from != myIdentity)
+  {
+    // new message m: someone's asking for our name. Let's tell them.
+    var broadcaster = web3.toAscii(m.payload).substr(0, 32);
+    console.log("Broadcast from " + broadcaster + "; replying to tell them our name.");
+    shh.post({
+      "from": eth.key,
+      "to": m.from,
+      "topics": [ eth.fromAscii(appName), m.from ],
+      "payload": [ eth.fromAscii(myName) ],
+      "ttl": 2,
+      "priority": 500
+    });
+  }
+});
+
+
+});
+   
+  
 function getValue() {
   simpleStorage.get(function(e,r){
     document.getElementById('storedData').innerHTML=r.toNumber();
@@ -62,6 +106,18 @@ function getValue() {
     document.getElementById('lastBlock').innerHTML = r;
   });
 }
+  
+function sendMessage() { 
+shh.post({
+  "from": myIdentity,
+  "topics": [ web3.fromAscii(appName) ],
+  "payload": [ web3.fromAscii(myName), web3.fromAscii(newMessage) ],
+  "ttl": 100,
+  "priority": 1000
+});
+
+  
+  
 function setValue() {
   var newValue = document.getElementById('newValue').value;
   var txid
@@ -74,7 +130,7 @@ function setValue() {
     getValue();
     web3.eth.getTransaction(txid, function(e,r){
       if (r != null && r.blockNumber > 0) {
-        document.getElementById('pending').innerHTML = '(¡¾a¡¤I¥ìE ¨¬i¡¤I: ' + r.blockNumber + ')';
+        document.getElementById('pending').innerHTML = '(Â¡Â¾aÂ¡Â¤IÂ¥Ã¬E Â¨Â¬iÂ¡Â¤I: ' + r.blockNumber + ')';
         document.getElementById('pending').style.cssText ='color:green;';
         document.getElementById('storedData').style.cssText ='color:green; font-size:300%;';
         filter.stopWatching();
@@ -82,5 +138,8 @@ function setValue() {
    });
  });
 }
+  
+  
+  
 </script>
 </html>
