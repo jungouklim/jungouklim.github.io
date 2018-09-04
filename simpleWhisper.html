@@ -93,17 +93,6 @@ broadcastWatch.arrived(function(m)
   }
 });
 
-<!--  
-function getValue() {
-  simpleStorage.get(function(e,r){
-    document.getElementById('storedData').innerHTML=r.toNumber();
-  });
-  web3.eth.getBlockNumber(function(e,r){
-    document.getElementById('lastBlock').innerHTML = r;
-  });
-}
--->
-  
 function sendMessage() { 
 shh.post({
   "from": myIdentity,
@@ -112,9 +101,9 @@ shh.post({
   "ttl": 100,
   "priority": 1000
 });
+
 }
 
-}  
-  
+ 
 </script>
 </html>
