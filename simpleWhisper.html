@@ -34,7 +34,6 @@ var shh;
 var appName = "My Whisper app!";
 var myName = "jolim";
 var myIdentity;
-
  
 window.addEventListener('load', function() {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
@@ -49,50 +48,54 @@ window.addEventListener('load', function() {
   // Now you can start your app & access web3 freely:
   startApp();
 });
-  
+
+
+<!-- ------ -->  
 function startApp() {
-   
-shh = web3.shh;
-myIdentity = shh.newIdentity();
-  
+   shh = web3.shh;
+   myIdentity = shh.newIdentity();
   messageReceive();
 }
   
  
+<!-- ------ -->  
 function messageReceive() {
   
-var replyWatch = shh.watch({
-  "topics": [ web3.fromAscii(appName), myIdentity ],
-  "to": myIdentity
-});
-// could be "topic": [ web3.fromAscii(appName), null ] if we wanted to filter all such
-// messages for this app, but we'd be unable to read the contents.
+	var replyWatch = shh.watch({
+	  "topics": [ web3.fromAscii(appName), myIdentity ],
+	  "to": myIdentity
+	});
+	// could be "topic": [ web3.fromAscii(appName), null ] if we wanted to filter all such
+	// messages for this app, but we'd be unable to read the contents.
+	
+	replyWatch.arrived(function(m)
+	{
+		// new message m
+		console.log("Reply from " + web3.toAscii(m.payload) + " whose address is " + m.from);
+	});
+	
+	var broadcastWatch = shh.watch({ "topic": [ web3.fromAscii(appName) ] });
+	
+	broadcastWatch.arrived(function(m)
+	{
+	  if (m.from != myIdentity)
+	  {
+	    // new message m: someone's asking for our name. Let's tell them.
+	    var broadcaster = web3.toAscii(m.payload).substr(0, 32);
+	    console.log("Broadcast from " + broadcaster + "; replying to tell them our name.");
+	    shh.post({
+	      "from": eth.key,
+	      "to": m.from,
+	      "topics": [ eth.fromAscii(appName), m.from ],
+	      "payload": [ eth.fromAscii(myName) ],
+	      "ttl": 2,
+	      "priority": 500
+	    });
+	  }
+	});
+}
 
-replyWatch.arrived(function(m)
-{
-	// new message m
-	console.log("Reply from " + web3.toAscii(m.payload) + " whose address is " + m.from);
-});
-
-var broadcastWatch = shh.watch({ "topic": [ web3.fromAscii(appName) ] });
-broadcastWatch.arrived(function(m)
-{
-  if (m.from != myIdentity)
-  {
-    // new message m: someone's asking for our name. Let's tell them.
-    var broadcaster = web3.toAscii(m.payload).substr(0, 32);
-    console.log("Broadcast from " + broadcaster + "; replying to tell them our name.");
-    shh.post({
-      "from": eth.key,
-      "to": m.from,
-      "topics": [ eth.fromAscii(appName), m.from ],
-      "payload": [ eth.fromAscii(myName) ],
-      "ttl": 2,
-      "priority": 500
-    });
-  }
-});
-
+<!-- ------ -->  
 function sendMessage() { 
 shh.post({
   "from": myIdentity,
@@ -101,9 +104,7 @@ shh.post({
   "ttl": 100,
   "priority": 1000
 });
-
 }
-
  
 </script>
 </html>
